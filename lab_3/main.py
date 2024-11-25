@@ -9,7 +9,8 @@ from checksum import (
 )
 
 
-def is_row_valid(row: dict[str, str]):
+def is_row_valid(row: dict[str, str]) -> bool:
+    """Tests a CSV string against the specified regular expressions."""
     processors = {
         "email": "^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$",
         "height": "^\\d\\.\\d{2}$",
@@ -26,3 +27,25 @@ def is_row_valid(row: dict[str, str]):
         if re.fullmatch(processor, row[field_name]) is None:
             return False
     return True
+
+
+def get_wrong_lines() -> Iterable[int]:
+    """Returns the line numbers of the CSV file that were not validated."""
+    with open("11.csv", mode="r", encoding="utf16", newline="") as file_to_validate:
+        strings_reader = csv.DictReader(file_to_validate, delimiter=';')
+        for i, row in enumerate(strings_reader):
+            if not is_row_valid(row):
+                yield i
+
+
+def main() -> None:
+    """The main function of the program. Calculates line numbers with errors,
+    calculates the checksum and stores the results."""
+    lines = list(get_wrong_lines())
+    variant = 11
+    checksum = calculate_checksum(lines)
+    serialize_result(variant, checksum)
+
+
+if __name__ == '__main__':
+    main()
