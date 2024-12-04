@@ -10,6 +10,7 @@ import base64
 from urllib import request, error
 import random
 
+# Настройка логирования
 logging.basicConfig(
     filename='logging_FW_Script.log',
     format='%(asctime)s : %(levelname)s : %(message)s',
@@ -128,4 +129,32 @@ def write_data(post_data, url):
 def main(argv):
     parser = argparse.ArgumentParser(description='FW Management')
     parser.add_argument('-c', '--config', dest='config', type=str, required=False, help='configuration file')
-    parser.add_argument('-a', '--action', dest='action',
+    parser.add_argument('-a', '--action', dest='action', type=str, required=True, help='action to perform [read|search|write]')
+    args = parser.parse_args()
+
+    logging.info("Action selected: %s", args.action)
+    if args.action == 'read':
+        read_data(set_server(api_path['object']), 1)
+    elif args.action == 'search':
+        search_data()
+    elif args.action == 'write':
+        # Implement the make_data() logic here if needed
+        pass
+
+    if change == 1:
+        choice = input('\nThe device configuration has been changed by the script. Save to NVRAM? [yes/no]').lower()
+        if choice in ('', 'yes'):
+            json_data = {'commands': ["write memory"]}
+            write_data(json_data, server + '/api/cli')
+            logging.info("Configuration saved to NVRAM")
+        else:
+            logging.info("Configuration changes discarded by user")
+            print('\nExiting the script without saving the configuration.')
+
+if __name__ == "__main__":
+    try:
+        main(sys.argv[1:])
+        logging.info("Script executed successfully")
+    except Exception as e:
+        logging.exception("Fatal error during execution: %s", str(e))
+        sys.exit(1)
