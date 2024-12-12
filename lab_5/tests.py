@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from lab_5.initcode import Employee, Department, Company
 
 def test_employee_initialization():
